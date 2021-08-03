@@ -1,0 +1,63 @@
+version: '3'
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    entrypoint: dockerize -wait tcp://node:3000 -timeout 5m
+    command: [ 'nginx', '-g', 'daemon off;' ]
+    networks:
+      - node_nginx
+    depends_on:
+      - node
+    ports:
+      - 80:80
+    restart: "unless-stopped"
+  node:
+    build:
+      context: ./node
+    container_name: node
+    volumes:
+      - ./node/:/usr/src/app/
+      - /usr/src/app/node_modules/
+    entrypoint: dockerize -wait tcp://mysql:3306 -timeout 5m
+    command: tail -f /dev/null
+    # command:  ["pm2-runtime", "app.js","--watch"]
+    networks:
+      - node_nginx
+      - node_mysql
+      - node_redis
+    depends_on:
+      - mysql
+      - redis
+    restart: "unless-stopped"
+  mysql:
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0
+    container_name: mysql
+    restart: always
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=root
+      
+    ports:
+      - 3306:3306
+    networks:
+      - node_mysql
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - 3307:3307
+    networks: 
+      - node_redis
+networks:
+  node_nginx:
+    driver: bridge
+  node_mysql:
+    driver: bridge
+  node_redis:
+    driver: bridge

@@ -3,86 +3,28 @@
 <img src="./backimage.jpg"/>
 
 ## 추가점
-- redis 추가 (공부차원에서 넣어봄 신경쓰지 말것)
-- redis 시험 페이지 index.js에 적용
+- redis 추가 (cluster mode)
 - redis session 적용가능
 - sequelize, seqeulize-auto, express 구동확인
-- 기존의 도커는 호스팅을 중점으로 파일을 만들었다
-- 지금 세팅은 개발에 집중하게  docker-compse.yml 23번째 줄에 command: tail -f /dev/null을 삽입
 
 ## 필독
-- command: tail -f /dev/null 도커 프로세스가 끝나도 종료되지 않게 세팅
-- vscode나 ssh로 연결해서 node 컨테이너로 들어간후 yarn dev || npm run dev를 쳐서 실행할것
+- node 들어간후 yarn dev || npm run dev를 쳐서 실행할것
+- test으 경우 알아서 test 파일을 찾기 때문에 yarn test|| npm test로 확인 가능
 - 치고나면 log가 나오지 않을것인데 그것은 pm2 monit쳐서 확인 가능하다
-
+- jest를 활용해 모듈이 제대로 작동하는지 서버를 실행전에 확인할수 있다. 
+> test 폴더의 user.test.js와 testuser.js를 반드시 확인할것 
 ## docker 
 - docker-compose up -d build를 통해 백그라운드와 빌드를 동시 가능
 - docker-compose에서 command를 통해 시작할때 서버와 mysql nginx가 실행되게 하였다.
 
 ## node.js - express
-- Login : passport 사용 (로그인 사용할때 필수적으로 사용되는 모듈)
+- passport: 사용 (로그인 사용할때 필수적으로 사용되는 모듈)
 <a href="http://www.passportjs.org/">passport.js</a>
-
-```js
-패스포트 예시
-./passport/index.js
-const passport = require('passport');
-const local = require('./local');
-const { User } = require('../models');
-
-module.exports = () => {
-  passport.serializeUser((user, done) => {
-    done(null, user.id);
-  });
-
-  passport.deserializeUser(async (id, done) => {
-    try {
-      const user = await User.findOne({ where: { id }});
-      done(null, user); // req.user
-    } catch (error) {
-      console.error(error);
-      done(error);
-    }
-  });
-
-  local();
-};
-
-./passport/local.js
-const passport = require('passport');
-const { Strategy: LocalStrategy } = require('passport-local');
-const bcrypt = require('bcrypt');
-const { User } = require('../models');
-
-module.exports = () => {
-  passport.use(new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password',
-  }, async (email, password, done) => {
-    try {
-      const user = await User.findOne({
-        where: { email }
-      });
-      if (!user) {
-        return done(null, false, { reason: '존재하지 않는 이메일입니다!' });
-      }
-      const result = await bcrypt.compare(password, user.password);
-      if (result) {
-        return done(null, user);
-      }
-      return done(null, false, { reason: '비밀번호가 틀렸습니다.' });
-    } catch (error) {
-      console.error(error);
-      return done(error);
-    }
-  }));
-};
-
-```
 - helmet : http header의 보안관련 모듈
 - morgan : express 내에서 로그 기록 남김
-- express -view=ejs 폴더명 (express를 써서 간단한 필요 모듈을 설치하자)
-
+- winston : moragn의 추가 로그 API
+- jest : 테스트 API
+- Adminbro : 어드민 페이지 구축 
 
 ## nginx
 - nginx -g daemon off 명령어로 현재 백그라운드에서 실행
@@ -140,45 +82,9 @@ yarn sequelize-auto -o "./models" -d DB이름 -h mysql -u root -p 3306 -x root -
 - http://localhost:80/
 - mysql : ip: localhost , port 3306
 
-## 사용 라이브러리
-
-- 칼만 필터
-
-> 칼만 필터는 과거의 정보와 새로운 측정값을 사용하여 측정값에 포함된 잡음을 제거시켜 값을 최적화 하는 필터
-<a href="https://github.com/wouterbulten/kalmanjs"> kalmanjs </a>
-
-- 사용법 예시
-```js
-var KalmanFilter = require('kalmanjs')
-
-var kf = new KalmanFilter();
-console.log(kf.filter(3));
-console.log(kf.filter(2));
-console.log(kf.filter(1));
-
-```
-
-```js
-//Generate a simple static dataset
-var dataConstant = Array.apply(null, {length: dataSetSize}).map(function() {
-  return 4;
-});
-//Add noise to data
-var noisyDataConstant = dataConstant.map(function(v) {
-  return v + randn(0, 3);
-});
-
-//Apply kalman filter
-var kalmanFilter = new KalmanFilter({R: 0.01, Q: 3});
-
-var dataConstantKalman = noisyDataConstant.map(function(v) {
-  return kalmanFilter.filter(v);
-});
-```
-
 ## Admin
 > sequelize - express를 사용해서 만드는게 적정
-<a href="https://github.com/ForestAdmin/forest-express-sequelize">Admin 페이지</a>
+
 
 ## JWT
 >서버에 부담을 적게 주기위해 사용
@@ -187,69 +93,17 @@ var dataConstantKalman = noisyDataConstant.map(function(v) {
 - 설치 : npm isntall jsonwebtoken rand-token
 
 - 우리는 passport와 JWT를 같이 써야한다
-```js
-//passport/index.js
-const passport = require("passport");
-const passportJWT = require("passport-jwt");
-const bcrypt = require("bcrypt");
 
-const JWTStrategy = passportJWT.Strategy;
-const { ExtractJwt } = passportJWT;
-const LocalStrategy = require("passport-local").Strategy;
-```
-
-- ID,PWD에 대한 전략
-```js
-const LocalStrategyOption = {
-  username: "UserId",
-  userpwd: "PWD",
-};
-async function idpwVerify(id, pwd, done) {
-  let user;
-  try {
-    user = await userDAO.find(id);
-
-    if (!user) return done(null, false);
-    const CorrectPassword = await bcrypt.compare(pwd, user.userpwd);
-    if (!CorrectPassword) return done(null, false);
-  } catch (e) {
-    done(e);
-  }
-  return done(null, user);
-}
-```
-- 토큰 전략 생성
-```js
-const jwtStrategyOption = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: global.config.secret,
-};
-
-async function jwtVerifty(payload, done) {
-  let user;
-  try {
-    user = await userDAO.find(payload.uid);
-    if (!user) return done(null, false);
-  } catch (e) {
-    return done(e);
-  }
-  return done(null, user);
-}
-```
-
-## 날씨 정보
-- 기상청 RSS 사용
-- http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=2714076000
 
 ## 해야할일
-- [x] 백엔드 문서 설계화
-- [x] rest-API 통신 문서 설계화
-- [x] 개발환경  구축
-- [x] 로그인 구현 
-- [x] 받아오는 자료에 대한 CRUD
-- [x] 앱과의 통신
-- [ ] 로드 밸런싱
-- [ ] AWS나 학교 서버에 배포  
+- [] 백엔드 문서 설계화
+- [] rest-API 통신 문서 설계화
+- [] 개발환경  구축
+- [] 로그인 구현 
+- [] 받아오는 자료에 대한 CRUD
+- [] Socket 채팅 
+- [] 앱과의 통신
+- [] 로드 밸런싱
+- [] 서버에 배포  
 
 
-# Server
