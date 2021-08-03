@@ -1,7 +1,5 @@
 # nginx,nodejs,mysql 도커
 
-<img src="./backimage.jpg"/>
-
 ## 추가점
 - redis 추가 (cluster mode)
 - redis session 적용가능
