@@ -67,7 +67,7 @@ pm2 show API
 - 아래 mysql-sequelize를 활용하여 사용예정 
 - 도메인 사전 및 메시지 정의(지속 추가예정) : DB 구성요소 용어와 기능 별 입력, 출력 파라미터 정의 명세서 
 > 개발 시 도메인 사전에 맞게 변수명 지정할 것!
-- <a href="https://docs.google.com/spreadsheets/d/1QrymiuNqjGQ9W0M2vCWcblElWLqksPbk8lsB-ya46K8/edit?usp=sharing">매시지 정의서/도메인 사전</a>
+- <a href="https://docs.google.com/spreadsheets/d/1QrymiuNqjGQ9W0M2vCWcblElWLqksPbk8lsB-ya46K8/edit?usp=sharing">메시지 정의서/도메인 사전</a>
 
 ## mysql-sequelize
 - ORM을 지원해주는 라이브러리
