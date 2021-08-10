@@ -23,44 +23,44 @@ module.exports = function(sequelize, DataTypes) {
         key: 'volActvCatID'
       }
     },
-    volActTitle: {
+    volActvTitle: {
       type: DataTypes.STRING(20),
       allowNull: false
     },
-    volActCont: {
+    volActvCont: {
       type: DataTypes.STRING(50),
       allowNull: false
     },
-    volActPer: {
+    volActvPer: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
     },
-    volActProgTime: {
+    volActvProgTime: {
       type: DataTypes.TIME,
       allowNull: false
     },
-    volActOSD: {
+    volActvOSD: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
     },
-    volActOED: {
+    volActvOED: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
     },
-    volActPT: {
+    volActvPT: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
     },
-    volActState: {
+    volActvState: {
       type: DataTypes.CHAR(1),
       allowNull: false,
       defaultValue: "R"
     },
-    volActViews: {
+    volActvViews: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
