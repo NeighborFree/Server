@@ -4,8 +4,8 @@ var redis = require('socket.io-redis');
 module.exports = (server) => {
 
   // 이는 클라이언트가 /socket.io 경로 접근시 소켓 연결을 시작함을 의미
-  const io = SocketIO(server, { path: "/socket.io"});
-  io.adapter(redis({ host: 'localhost', port: 6379 }));
+  const io = SocketIO(server, { path: "/socket.io",cors: { origin: "*" }});
+  io.adapter(redis({ host:'redis'}));
 
   // 연결시 connection 이벤트 발생한 후 콜백 실행
   io.on("connection", (socket) => {

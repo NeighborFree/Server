@@ -2,11 +2,13 @@
 
 ## 추가점
 - redis 추가 (cluster mode)
-- redis session 적용가능
+- redis session 적용가능 (session을 적용하지 않으면 passport 불가능)
 - sequelize, seqeulize-auto, express 구동확인
+- adminjs로 어드민 페이지 구축 
+- socket.io 통신확인
 
 ## 필독
-- node 들어간후 yarn dev || npm run dev를 쳐서 실행할것
+- node 들어간후 yarn strat || npm run start를 쳐서 실행할것
 - test으 경우 알아서 test 파일을 찾기 때문에 yarn test|| npm test로 확인 가능
 - 치고나면 log가 나오지 않을것인데 그것은 pm2 monit쳐서 확인 가능하다
 - jest를 활용해 모듈이 제대로 작동하는지 서버를 실행전에 확인할수 있다. 
@@ -22,7 +24,7 @@
 - morgan : express 내에서 로그 기록 남김
 - winston : moragn의 추가 로그 API
 - jest : 테스트 API
-- Adminbro : 어드민 페이지 구축 
+- Adminjs : 어드민 페이지 구축 
 
 ## nginx
 - nginx -g daemon off 명령어로 현재 백그라운드에서 실행

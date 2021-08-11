@@ -9,20 +9,43 @@ const RedisStore = require('connect-redis')(session)
 const logger = require('./.config/winston');
 const redis = require('redis');
 const webSocket = require("./socket/socket");
-const AdminBro = require('admin-bro');
-const AdminBroExpress = require('@admin-bro/express');
+const AdminJS = require ('adminjs');
+const { buildAuthenticatedRouter } = require('@adminjs/express');
+const AdminJSSequelize = require('@adminjs/sequelize');
+const { sequelize }= require('./models');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 
 const app = express();
 
-// admin 사이트 제작 
-const adminBro = new AdminBro({
-  databases: []
-})
-const router = AdminBroExpress.buildRouter(adminBro)
+sequelize.sync({ force: false }).then(() => {
+    console.log('데이터베이스 연결 성공');
+  }).catch((err) => {
+    console.error(err);
+  });
 
-app.use(adminBro.options.rootPath, router)
+// // redis 세팅 
+const redisClient = redis.createClient({host: "redis", logErrors: true,})
+  
+
+// // admin 사이트 제작 
+AdminJS.registerAdapter(AdminJSSequelize)
+  const admin = new AdminJS({
+    databases: [sequelize],
+  })
+admin.watch()
+
+const router = buildAuthenticatedRouter(admin,{
+    authenticate: async (email, password) => {
+    if ("admin" === password && "admin" === email) {
+      return {email:"admin",password:"admin"}
+    }
+      return null
+    },
+  cookieName: 'adminBro',
+  cookiePassword: 'adminBro'
+})
+app.use(admin.options.rootPath, router)  
 app.use(helmet());
 app.use(morganMiddleware)
 app.use(express.json());
@@ -32,13 +55,6 @@ app.use(cookieParser());
 app.use('/', indexRouter);
 app.use('/users',usersRouter);
 
-const redisClient = redis.createClient({
-   host: "127.0.0.1", 
-   port:6379,
-   logErrors: true,
-   db:0,
-  })
-// redis 세팅 
 app.use(session({
     secret: "secret",
     saveUninitialized: true,
@@ -55,12 +71,10 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
-
 app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
   res.status(err.status || 500);
-  res.render('error');
 });
 
 const server = app.listen(3000, () => {
